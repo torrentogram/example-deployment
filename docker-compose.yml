@@ -1,0 +1,54 @@
+version: "2.1"
+
+services:
+  telegram-transmission-bot:
+    restart: always
+    image: cornon/telegram-transmission-bot:1.2.0
+    environment:
+      TG_ALLOWED_USERS: REDACTED
+      TG_TOKEN: "REDACTED"
+      REDIS: redis
+      TRANSMISSION_HOST: transmission
+      TRANSMISSION_LOGIN: transmission
+      TRANSMISSION_PASSWORD: transmission
+      RUTRACKER_PASSWORD: REDACTED
+      RUTRACKER_LOGIN: REDACTED
+      DEBUG: TelegramTransmissionBot
+      TUNNEL_API: http://storage-tunnel:3000
+    volumes:
+      - /mnt/media-storage:/downloads/complete
+    depends_on:
+      - redis
+      - transmission
+      - storage-tunnel
+
+  storage-tunnel:
+    restart: always
+    image: cornon/storage-tunnel:1.0.8
+    environment:
+      SERVER_ROOT: /downloads/complete
+      NGROK_AUTH_TOKEN: REDACTED
+    volumes:
+      - /mnt/media-storage:/downloads/complete
+    # ports:
+    #   - "19111:3000" # for debug only
+
+  redis:
+    restart: always
+    image: redis:latest
+    volumes:
+      - ./volumes/redis:/data
+
+  transmission:
+    restart: always
+    image: linuxserver/transmission:latest
+    volumes:
+      - /mnt/media-storage:/downloads/complete
+      - /tmp:/downloads/incomplete
+      - ./volumes/transmission-config:/config
+    ports:
+      - "19091:9091"
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Kiev
