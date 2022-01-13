@@ -3,11 +3,12 @@ version: "2.1"
 services:
   telegram-transmission-bot:
     restart: always
-    image: cornon/telegram-transmission-bot:1.2.0
+    image: cornon/telegram-transmission-bot:1.2.5
     environment:
       TG_ALLOWED_USERS: REDACTED
       TG_TOKEN: "REDACTED"
       REDIS: redis
+      TRANSMISSION_PORT: 9091 #optional
       TRANSMISSION_HOST: transmission
       TRANSMISSION_LOGIN: transmission
       TRANSMISSION_PASSWORD: transmission
@@ -47,7 +48,7 @@ services:
       - /tmp:/downloads/incomplete
       - ./volumes/transmission-config:/config
     ports:
-      - "19091:9091"
+      - "19091:9091" #optional. Use it if you need to have access with external clients (android apps, web browser, etc)
     environment:
       - PUID=1000
       - PGID=1000
